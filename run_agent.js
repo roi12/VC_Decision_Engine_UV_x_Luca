@@ -62,11 +62,6 @@ async function runAgent(input, apiKey = null) {
 
   const parsed = extractLastJson(raw);
 
-  fs.writeFileSync(
-    path.join(ROOT, 'outputs/latest.json'),
-    JSON.stringify(parsed, null, 2)
-  );
-
   return parsed;
 }
 
@@ -120,7 +115,6 @@ async function* streamAgentEvents(input, apiKey = null) {
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
   const parsed = extractLastJson(raw);
-  fs.writeFileSync(path.join(ROOT, 'outputs/latest.json'), JSON.stringify(parsed, null, 2));
 
   yield { type: 'done', result: parsed };
 }
@@ -195,7 +189,6 @@ WARNING: No ground data was provided. Return the insufficient data error JSON im
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
   const parsed = extractLastJson(raw);
-  fs.writeFileSync(path.join(ROOT, 'outputs/latest.json'), JSON.stringify(parsed, null, 2));
 
   yield { type: 'done', result: parsed };
 }
