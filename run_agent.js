@@ -6,7 +6,6 @@ const ROOT = process.cwd();
 
 // Finds the last complete top-level JSON object in a string by scanning
 // backwards from the last '}' to its matching '{'.
-// This avoids the greedy-regex trap of merging multiple JSON blocks.
 function extractLastJson(text) {
   let end = -1;
   for (let i = text.length - 1; i >= 0; i--) {
@@ -28,44 +27,72 @@ function extractLastJson(text) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
-async function runAgent(input, apiKey = null) {
-  const key = apiKey || process.env.ANTHROPIC_API_KEY;
-  if (!key) {
-    throw new Error('ANTHROPIC_API_KEY is not configured on the server');
-  }
+// ─── Web search tool execution ─────────────────────────────────────────────
+// Called by streamAgentEvents when Claude invokes the web_search tool.
+// Searches DuckDuckGo HTML endpoint and fetches the first usable result page.
 
-  const client = new Anthropic({ apiKey: key });
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+};
 
-  const claudeMd  = fs.readFileSync(path.join(ROOT, 'claude.md'),      'utf8');
-  const agentsMd  = fs.readFileSync(path.join(ROOT, 'docs/agents.md'), 'utf8');
-  const promptsMd = fs.readFileSync(path.join(ROOT, 'prompts.md'),     'utf8');
+const SKIP_DOMAINS = ['linkedin.com', 'facebook.com', 'twitter.com', 'x.com', 'instagram.com', 'youtube.com'];
 
-  const systemContext = [claudeMd, agentsMd, promptsMd].join('\n\n---\n\n');
-
-  const response = await client.messages.create({
-    model: 'claude-opus-4-6',
-    max_tokens: 4096,
-    system: systemContext,
-    messages: [
-      { role: 'user', content: `Run DUE DILIGENCE for: ${input}` },
-    ],
-  });
-
-  let raw = response.content[0].text.trim();
-
-  // Strip markdown fences
-  raw = raw
-    .replace(/^```json\s*/i, '')
-    .replace(/^```\s*/i, '')
-    .replace(/\s*```$/i, '')
+function stripHtml(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
     .trim();
-
-  const parsed = extractLastJson(raw);
-
-  return parsed;
 }
 
-// Agent detection patterns — matched against the accumulating stream text
+async function executeWebSearch(query) {
+  try {
+    const ddgRes = await fetch(
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
+      { headers: FETCH_HEADERS, signal: AbortSignal.timeout(8000) }
+    );
+    if (!ddgRes.ok) return `No results found for: ${query}`;
+
+    const html = await ddgRes.text();
+
+    // Extract destination URLs from DuckDuckGo redirect links (uddg= param)
+    const urls = [];
+    const re = /uddg=([^&"'\s>]+)/g;
+    let m;
+    while ((m = re.exec(html)) !== null) {
+      try {
+        const u = decodeURIComponent(m[1]);
+        if (u.startsWith('http') && !u.includes('duckduckgo.com')) urls.push(u);
+      } catch {}
+    }
+
+    const candidates = [...new Set(urls)].filter(u => !SKIP_DOMAINS.some(d => u.includes(d)));
+    if (candidates.length === 0) return `No usable results for: ${query}`;
+
+    for (const url of candidates.slice(0, 3)) {
+      try {
+        const res = await fetch(url, { headers: FETCH_HEADERS, signal: AbortSignal.timeout(7000), redirect: 'follow' });
+        if (!res.ok) continue;
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('text/html')) continue;
+        const text = stripHtml(await res.text()).slice(0, 2000);
+        if (text.length > 100) return `[Source: ${res.url}]\n${text}`;
+      } catch {}
+    }
+    return `Could not fetch content for: ${query}`;
+  } catch {
+    return `Search failed for: ${query}`;
+  }
+}
+
+// ─── Agent detection patterns ──────────────────────────────────────────────
+
 const AGENTS = [
   { key: 'founder',       label: 'Founder Agent',      pattern: /"evidence_strength"/ },
   { key: 'product',       label: 'Product Agent',       pattern: /"validated"/ },
@@ -77,7 +104,22 @@ const AGENTS = [
   { key: 'decision',      label: 'Investment Decision', pattern: /"one_line_verdict"/ },
 ];
 
-// Async generator — yields progress events then a final { type:'done', result }
+// ─── Due Diligence streaming ───────────────────────────────────────────────
+// Claude calls web_search (up to 5 times) before running the 8 DD agents.
+// The tool loop re-streams after each search round until Claude outputs end_turn.
+
+const WEB_SEARCH_TOOL = {
+  name: 'web_search',
+  description: 'Search the web for current information about a company. Use this to find real, up-to-date facts about the founder, product, traction, funding, and news before running analysis. Do not rely on training knowledge.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Search query, e.g. "Stripe founder Patrick Collison background"' },
+    },
+    required: ['query'],
+  },
+};
+
 async function* streamAgentEvents(input, apiKey = null) {
   const key = apiKey || process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error('ANTHROPIC_API_KEY is not configured on the server');
@@ -89,37 +131,92 @@ async function* streamAgentEvents(input, apiKey = null) {
   const promptsMd = fs.readFileSync(path.join(ROOT, 'prompts.md'),     'utf8');
   const systemContext = [claudeMd, agentsMd, promptsMd].join('\n\n---\n\n');
 
+  const messages = [{
+    role: 'user',
+    content:
+`Run DUE DILIGENCE for: ${input}
+
+Use web_search to gather real data before evaluating. Search for:
+1. Company overview and product
+2. Founder background and team
+3. Funding history and investors
+4. Evidence of traction (revenue, customers, contracts)
+5. Recent news (2024–2025)
+
+Then run all 8 DD agents grounded in the data you found. No prior knowledge.`,
+  }];
+
   let fullText = '';
   const completed = new Set();
+  let searchesUsed = 0;
+  const MAX_SEARCHES = 5;
 
-  const stream = client.messages.stream({
-    model: 'claude-opus-4-6',
-    max_tokens: 4096,
-    system: systemContext,
-    messages: [{ role: 'user', content: `Run DUE DILIGENCE for: ${input}` }],
-  });
+  while (true) {
+    const stream = client.messages.stream({
+      model: 'claude-opus-4-6',
+      max_tokens: 4096,
+      system: systemContext,
+      ...(searchesUsed < MAX_SEARCHES && { tools: [WEB_SEARCH_TOOL] }),
+      messages,
+    });
 
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-      fullText += chunk.delta.text;
-      for (const agent of AGENTS) {
-        if (!completed.has(agent.key) && agent.pattern.test(fullText)) {
-          completed.add(agent.key);
-          yield { type: 'agent', key: agent.key, label: agent.label };
+    // Track content blocks by index so we can assemble tool input JSON
+    const blocks = {};
+
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_start') {
+        blocks[chunk.index] = { ...chunk.content_block, inputJson: '' };
+      }
+      if (chunk.type === 'content_block_delta') {
+        if (chunk.delta.type === 'text_delta') {
+          fullText += chunk.delta.text;
+          for (const agent of AGENTS) {
+            if (!completed.has(agent.key) && agent.pattern.test(fullText)) {
+              completed.add(agent.key);
+              yield { type: 'agent', key: agent.key, label: agent.label };
+            }
+          }
+        }
+        if (chunk.delta.type === 'input_json_delta' && blocks[chunk.index]) {
+          blocks[chunk.index].inputJson += chunk.delta.partial_json;
         }
       }
     }
+
+    const finalMsg = await stream.finalMessage();
+
+    // If Claude is done, exit the loop
+    if (finalMsg.stop_reason !== 'tool_use') break;
+
+    const toolUseBlocks = Object.values(blocks).filter(b => b.type === 'tool_use');
+    if (toolUseBlocks.length === 0) break;
+
+    // Add Claude's response to the conversation
+    messages.push({ role: 'assistant', content: finalMsg.content });
+
+    // Execute each web search and collect results
+    const toolResults = await Promise.all(
+      toolUseBlocks.map(async (block) => {
+        let query = input;
+        try { query = JSON.parse(block.inputJson).query || input; } catch {}
+        searchesUsed++;
+        const result = await executeWebSearch(query);
+        return { type: 'tool_result', tool_use_id: block.id, content: result };
+      })
+    );
+
+    messages.push({ role: 'user', content: toolResults });
   }
 
-  let raw = fullText.trim()
+  const raw = fullText.trim()
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
-  const parsed = extractLastJson(raw);
-
-  yield { type: 'done', result: parsed };
+  yield { type: 'done', result: extractLastJson(raw) };
 }
 
-// Intake agent detection patterns
+// ─── Intake streaming ──────────────────────────────────────────────────────
+// Intake is grounded on pre-fetched website data — no web_search tool needed.
+
 const INTAKE_AGENTS = [
   { key: 'scouter',          label: 'Scouter',          pattern: /"startup_name"/ },
   { key: 'source_checker',   label: 'Source Checker',   pattern: /"claims_verified"/ },
@@ -127,7 +224,6 @@ const INTAKE_AGENTS = [
   { key: 'thesis_fit',       label: 'Thesis Fit',       pattern: /"uv_fit"/ },
 ];
 
-// Async generator for INTAKE mode — 4 agents, grounded data only
 async function* streamIntakeEvents(input, apiKey = null, groundData = null) {
   const key = apiKey || process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error('ANTHROPIC_API_KEY is not configured on the server');
@@ -139,14 +235,15 @@ async function* streamIntakeEvents(input, apiKey = null, groundData = null) {
   const promptsMd = fs.readFileSync(path.join(ROOT, 'prompts.md'),     'utf8');
   const systemContext = [claudeMd, agentsMd, promptsMd].join('\n\n---\n\n');
 
-  // Build grounded prompt — LLM receives only fetched data, no prior knowledge allowed
+  // Build user content — pre-fetched website data is the primary source,
+  // web_search tool is available for supplementary context (founder, funding, news).
   let userContent;
   if (groundData && groundData.website_text && groundData.website_text.length > 0) {
     const facts = (groundData.extracted_facts || []).map(f => `- ${f}`).join('\n') || '- none extracted';
     userContent =
 `Run INTAKE for: ${input}
 
-GROUNDED DATA — use ONLY the content below. Do NOT use prior knowledge about this company.
+PRIMARY SOURCE (company website):
 
 Source: ${groundData.source_url || 'unknown'}
 
@@ -156,41 +253,104 @@ ${groundData.website_text.slice(0, 3500)}
 ---
 
 Extracted Facts:
-${facts}`;
-  } else {
-    userContent = `Run INTAKE for: ${input}
+${facts}
 
-WARNING: No ground data was provided. Return the insufficient data error JSON immediately.`;
+You may use web_search (up to 3 times) to supplement this data — e.g. founder background, funding signals, recent news. Then run all 4 intake agents.`;
+  } else {
+    userContent =
+`Run INTAKE for: ${input}
+
+No website data was pre-fetched. Use web_search to find information about this company, then run all 4 intake agents.`;
   }
 
+  const messages = [{ role: 'user', content: userContent }];
   let fullText = '';
   const completed = new Set();
+  let searchesUsed = 0;
+  const MAX_SEARCHES = 3; // Lower cap than DD — intake is fast and directional
 
-  const stream = client.messages.stream({
-    model: 'claude-opus-4-6',
-    max_tokens: 2048,
-    system: systemContext,
-    messages: [{ role: 'user', content: userContent }],
-  });
+  while (true) {
+    const stream = client.messages.stream({
+      model: 'claude-opus-4-6',
+      max_tokens: 2048,
+      system: systemContext,
+      ...(searchesUsed < MAX_SEARCHES && { tools: [WEB_SEARCH_TOOL] }),
+      messages,
+    });
 
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-      fullText += chunk.delta.text;
-      for (const agent of INTAKE_AGENTS) {
-        if (!completed.has(agent.key) && agent.pattern.test(fullText)) {
-          completed.add(agent.key);
-          yield { type: 'agent', key: agent.key, label: agent.label };
+    const blocks = {};
+
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_start') {
+        blocks[chunk.index] = { ...chunk.content_block, inputJson: '' };
+      }
+      if (chunk.type === 'content_block_delta') {
+        if (chunk.delta.type === 'text_delta') {
+          fullText += chunk.delta.text;
+          for (const agent of INTAKE_AGENTS) {
+            if (!completed.has(agent.key) && agent.pattern.test(fullText)) {
+              completed.add(agent.key);
+              yield { type: 'agent', key: agent.key, label: agent.label };
+            }
+          }
+        }
+        if (chunk.delta.type === 'input_json_delta' && blocks[chunk.index]) {
+          blocks[chunk.index].inputJson += chunk.delta.partial_json;
         }
       }
     }
+
+    const finalMsg = await stream.finalMessage();
+    if (finalMsg.stop_reason !== 'tool_use') break;
+
+    const toolUseBlocks = Object.values(blocks).filter(b => b.type === 'tool_use');
+    if (toolUseBlocks.length === 0) break;
+
+    messages.push({ role: 'assistant', content: finalMsg.content });
+
+    const toolResults = await Promise.all(
+      toolUseBlocks.map(async (block) => {
+        let query = input;
+        try { query = JSON.parse(block.inputJson).query || input; } catch {}
+        searchesUsed++;
+        const result = await executeWebSearch(query);
+        return { type: 'tool_result', tool_use_id: block.id, content: result };
+      })
+    );
+
+    messages.push({ role: 'user', content: toolResults });
   }
 
-  let raw = fullText.trim()
+  const raw = fullText.trim()
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
-  const parsed = extractLastJson(raw);
+  yield { type: 'done', result: extractLastJson(raw) };
+}
 
-  yield { type: 'done', result: parsed };
+// ─── Non-streaming runAgent (CLI use) ─────────────────────────────────────
+
+async function runAgent(input, apiKey = null) {
+  const key = apiKey || process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error('ANTHROPIC_API_KEY is not configured on the server');
+
+  const client = new Anthropic({ apiKey: key });
+
+  const claudeMd  = fs.readFileSync(path.join(ROOT, 'claude.md'),      'utf8');
+  const agentsMd  = fs.readFileSync(path.join(ROOT, 'docs/agents.md'), 'utf8');
+  const promptsMd = fs.readFileSync(path.join(ROOT, 'prompts.md'),     'utf8');
+  const systemContext = [claudeMd, agentsMd, promptsMd].join('\n\n---\n\n');
+
+  const response = await client.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 4096,
+    system: systemContext,
+    messages: [{ role: 'user', content: `Run DUE DILIGENCE for: ${input}` }],
+  });
+
+  let raw = response.content[0].text.trim()
+    .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
+  return extractLastJson(raw);
 }
 
 module.exports = { runAgent, streamAgentEvents, AGENTS, streamIntakeEvents, INTAKE_AGENTS };
@@ -198,11 +358,6 @@ module.exports = { runAgent, streamAgentEvents, AGENTS, streamIntakeEvents, INTA
 if (require.main === module) {
   const input = process.argv[2] || 'Stripe';
   runAgent(input)
-    .then(result => {
-      console.log(JSON.stringify(result, null, 2));
-    })
-    .catch(err => {
-      console.error('Error:', err.message);
-      process.exit(1);
-    });
+    .then(result => console.log(JSON.stringify(result, null, 2)))
+    .catch(err => { console.error('Error:', err.message); process.exit(1); });
 }

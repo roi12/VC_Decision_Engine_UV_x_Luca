@@ -253,7 +253,7 @@ export default function Home() {
     setIntakeResult(null);
     setSourceUrl('');
 
-    // Intake: fetch ground data before reasoning
+    // Intake: fetch company website before reasoning
     let groundData: { website_text: string; source_url: string; extracted_facts: string[]; error?: string } | null = null;
     if (selectedMode === 'intake') {
       setStep('fetching');
@@ -272,6 +272,7 @@ export default function Home() {
         return;
       }
     }
+    // DD: no pre-fetch — Claude calls web_search tool autonomously during analysis
 
     setStatuses(initStatuses(agentList, true));
     setStep('running');
