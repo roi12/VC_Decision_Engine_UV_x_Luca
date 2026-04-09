@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unconventional Ventures — AI Workflow Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    :root {
+      --black: #0d0d0d;
+      --dark: #1a1a1a;
+      --mid: #2e2e2e;
+      --accent: #e8ff4e;
+      --accent-dark: #c9e032;
+      --light: #f5f5f0;
+      --muted: #888;
+      --border: #e0e0d8;
+      --white: #ffffff;
+      --tag-bg: #f0f0e8;
+      --green: #2d7a4f;
+      --red: #b53a2f;
+      --orange: #c97c2a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── COVER PAGE ── */
+    .cover {
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px;
+      page-break-after: always;
+    }
+
+    .cover-top { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .logo-area .fund-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cover-badge {
+      background: var(--mid);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #3a3a3a;
+    }
+
+    .cover-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 80px 0 40px; }
+
+    .cover-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--black);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 4px;
+      margin-bottom: 28px;
+    }
+
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    .cover-title span { color: var(--accent); }
+
+    .cover-subtitle {
+      font-size: 18px;
+      color: #aaa;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .cover-bottom {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 32px;
+    }
+
+    .cover-stat { }
+    .cover-stat .num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .cover-stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 72px 60px;
+    }
+
+    .page-break { page-break-before: always; }
+
+    /* ── SECTION HEADERS ── */
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    h1.section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      color: var(--black);
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 40px 0 14px;
+      color: var(--black);
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 28px 0 8px;
+      color: var(--black);
+    }
+
+    p { margin-bottom: 14px; color: #333; }
+
+    .lead {
+      font-size: 17px;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      background: var(--light);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .callout.dark {
+      background: var(--black);
+      color: var(--white);
+      border-left-color: var(--accent);
+    }
+
+    .callout.dark p, .callout.dark li { color: #ccc; }
+    .callout.dark strong { color: var(--white); }
+
+    .callout-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .callout.dark .callout-label { color: var(--accent); }
+
+    /* ── STEPS ── */
+    .steps { margin: 28px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      background: var(--black);
+      color: var(--accent);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-body { flex: 1; padding-top: 4px; }
+    .step-body strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .step-body p { margin-bottom: 0; font-size: 14px; color: #555; }
+
+    /* ── CODE / COMMAND BLOCKS ── */
+    .cmd {
+      background: var(--black);
+      color: #a8f5c0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+
+    .cmd .comment { color: #666; }
+    .cmd .highlight { color: var(--accent); }
+
+    /* ── CARDS GRID ── */
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      background: var(--white);
+    }
+
+    .card.accent { background: var(--black); color: var(--white); border-color: var(--black); }
+    .card.accent p { color: #aaa; }
+    .card.accent .card-title { color: var(--accent); }
+
+    .card-icon { font-size: 22px; margin-bottom: 10px; }
+    .card-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .card p { font-size: 13.5px; color: #666; margin: 0; }
+
+    /* ── WORKFLOW DIAGRAM ── */
+    .workflow-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 28px 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    .wf-node {
+      flex-shrink: 0;
+      background: var(--black);
+      color: var(--white);
+      border-radius: 8px;
+      padding: 12px 16px;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .wf-node .wf-num {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .wf-node .wf-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+      white-space: nowrap;
+    }
+
+    .wf-node.kill { background: #b53a2f; }
+    .wf-node.kill .wf-num { color: #ffb8b0; }
+
+    .wf-arrow {
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: 18px;
+      padding: 0 6px;
+    }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--black);
+      color: var(--white);
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafaf8; }
+
+    /* ── BADGES / TAGS ── */
+    .badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+
+    .badge.green { background: #e6f4ec; color: var(--green); }
+    .badge.red { background: #fce8e6; color: var(--red); }
+    .badge.orange { background: #fdf3e3; color: var(--orange); }
+    .badge.grey { background: var(--tag-bg); color: #555; }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      list-style: none;
+      margin: 14px 0;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .checklist li::before {
+      content: "→";
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--black);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    /* ── KILL LIST ── */
+    .kill-list {
+      list-style: none;
+      margin: 14px 0;
+    }
+
+    .kill-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      font-size: 13.5px;
+      color: #333;
+      padding: 8px 12px;
+      background: #fff5f5;
+      border-radius: 6px;
+      border-left: 3px solid var(--red);
+    }
+
+    .kill-list li::before {
+      content: "✕";
+      color: var(--red);
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: 12px;
+      margin-top: 1px;
+    }
+
+    /* ── SIDEBAR NOTE ── */
+    .sidebar-note {
+      float: right;
+      width: 220px;
+      margin: 0 0 20px 28px;
+      background: var(--light);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 12.5px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .sidebar-note strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--black); margin-bottom: 6px; }
+
+    /* ── TWO-COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin: 24px 0;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline { margin: 24px 0; }
+
+    .tl-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+
+    .tl-dot {
+      flex-shrink: 0;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 7px;
+      position: relative;
+    }
+
+    .tl-dot::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 4px;
+      width: 1px;
+      height: 30px;
+      background: var(--border);
+    }
+
+    .tl-item:last-child .tl-dot::after { display: none; }
+
+    .tl-body { flex: 1; }
+    .tl-body strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .tl-body p { font-size: 13px; color: #666; margin: 0; }
+
+    /* ── FAQ ── */
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+    }
+
+    .faq-q { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .faq-a { font-size: 14px; color: #555; }
+
+    /* ── FOOTER ── */
+    .doc-footer {
+      background: var(--black);
+      color: #666;
+      text-align: center;
+      padding: 32px;
+      font-size: 12px;
+      margin-top: 60px;
+    }
+
+    .doc-footer strong { color: var(--accent); }
+
+    /* ── PRINT ── */
+    @media print {
+      body { font-size: 13px; }
+      .cover { min-height: 100vh; padding: 48px; }
+      .cover-title { font-size: 44px; }
+      .page { padding: 48px 40px; }
+      .page-break { page-break-before: always; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="logo-area">
+      <div class="fund-name">INTRODUCTION | Unconventional Ventures x Luca</div>
+    </div>
+    <div class="cover-badge">Internal Use — 2026</div>
+  </div>
+
+  <div class="cover-center">
+    <div class="cover-tag">Implementation Guide</div>
+    <div class="cover-title">The UV AI<br><span>Workflow System</span></div>
+    <div class="cover-subtitle">How to install, run, and get results from the AI-powered sourcing and due diligence engine — no technical background required.</div>
+  </div>
+
+  <div class="cover-bottom">
+    <div class="cover-stat">
+      <div class="num">2</div>
+      <div class="label">Automated Workflows</div>
+    </div>
+    <div class="cover-stat">
+      <div class="num">10+</div>
+      <div class="label">Sourcing Runs Completed</div>
+    </div>
+    <div class="cover-stat">
+      <div class="num">14</div>
+      <div class="label">Startups Evaluated</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 1 — TABLE OF CONTENTS
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Contents</div>
+  <h1 class="section-title">What's in this guide</h1>
+  <p class="lead">This document explains everything a non-technical team member needs to know to set up and use the UV AI workflow on their computer.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>Section</th>
+        <th>What you'll learn</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>What the system does</strong></td><td>The purpose, logic, and outputs of the workflow engine</td></tr>
+      <tr><td>2</td><td><strong>What you need to install</strong></td><td>Step-by-step software setup — only three things required</td></tr>
+      <tr><td>3</td><td><strong>Setting up the project folder</strong></td><td>Getting the UV workflow files onto your computer</td></tr>
+      <tr><td>4</td><td><strong>Running a Sourcing workflow</strong></td><td>Finding new startups to evaluate</td></tr>
+      <tr><td>5</td><td><strong>Running a Due Diligence workflow</strong></td><td>Deep-evaluating a specific startup</td></tr>
+      <tr><td>6</td><td><strong>Reading the outputs</strong></td><td>What the JSON results mean in plain English</td></tr>
+      <tr><td>7</td><td><strong>The pipeline rules</strong></td><td>What the AI looks for — and why it kills most deals</td></tr>
+      <tr><td>8</td><td><strong>Sharing with teammates</strong></td><td>Getting others set up on their own computers</td></tr>
+      <tr><td>9</td><td><strong>FAQs</strong></td><td>Common questions answered</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout dark">
+    <div class="callout-label">Before you start</div>
+    <p>You do <strong>not</strong> need to know how to code to use this system. If you can open a folder and type a sentence, you can run the workflow. This guide walks you through every step.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 2 — WHAT THE SYSTEM DOES
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 1</div>
+  <h1 class="section-title">What the system does</h1>
+  <p class="lead">The UV AI Workflow is a purpose-built decision engine. It replaces hours of manual research with a structured, repeatable process that enforces Unconventional Ventures' investment criteria automatically.</p>
+
+  <div class="cards">
+    <div class="card accent">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">Sourcing Workflow</div>
+      <p>You ask the AI to find startups. It searches the web, verifies sources, applies UV's investment criteria, and delivers only deals worth your time — typically killing 70–80% before they reach you.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <div class="card-title">Due Diligence Workflow</div>
+      <p>You provide information about a specific startup. The AI runs 8 analytical agents in sequence — from founder evaluation to a falsification test — and returns a final invest/pass decision.</p>
+    </div>
+  </div>
+
+  <h2>How it thinks</h2>
+  <p>The system operates on one core principle: <strong>default is PASS</strong>. A deal must earn its way forward. The AI is not trying to find reasons to invest — it is trying to find reasons to eliminate a deal as fast as possible.</p>
+
+  <p>This mirrors how elite VC funds actually work. The question is never "could this be good?" It is: <strong>"Is there anything here that would stop us from investing?"</strong></p>
+
+  <div class="two-col">
+    <div>
+      <h3>What the AI prioritises</h3>
+      <ul class="checklist">
+        <li>Real customer revenue (not press or awards)</li>
+        <li>Underrepresented founders (women, POC, immigrants)</li>
+        <li>Specific unfair advantages (not generic claims)</li>
+        <li>Impact that solves systemic problems</li>
+        <li>Stage fit (pre-seed or very early seed)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What the AI ignores</h3>
+      <ul class="kill-list">
+        <li>Press coverage and awards</li>
+        <li>"AI-powered" descriptions without proof</li>
+        <li>Pilot announcements without contracts</li>
+        <li>Generic market size claims</li>
+        <li>Storytelling without data</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>The fund context it applies automatically</h2>
+  <p>Every run — sourcing or due diligence — automatically applies UV's fund mandate. You never need to remind it. These constraints are built in:</p>
+
+  <table>
+    <thead>
+      <tr><th>Criterion</th><th>Requirement</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Stage</strong></td><td>Pre-seed or very early seed only</td></tr>
+      <tr><td><strong>Total funding raised</strong></td><td>Maximum €5M — above this is an automatic kill</td></tr>
+      <tr><td><strong>Check size</strong></td><td>UV must be able to lead or be first institutional check</td></tr>
+      <tr><td><strong>Round size</strong></td><td>€500K – €3M target range</td></tr>
+      <tr><td><strong>Geography</strong></td><td>Nordics (SE, DK, NO, FI) first; also UK, Germany, Spain</td></tr>
+      <tr><td><strong>Founders</strong></td><td>Underrepresented background — near-required (women, POC, immigrants, LGBTQ+)</td></tr>
+      <tr><td><strong>Existing backers</strong></td><td>Must NOT already be backed by Sequoia, Index, Balderton, Planet A, byFounders, Atomico, EQT, CDP, TDK, or equivalent</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 3 — INSTALLATION
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 2</div>
+  <h1 class="section-title">What you need to install</h1>
+  <p class="lead">You need three things: Node.js (a background software engine), Claude Code (the AI interface), and an Anthropic API key (your access credential). Each step takes about 5 minutes.</p>
+
+  <div class="callout">
+    <div class="callout-label">Time required</div>
+    <p>First-time setup takes approximately <strong>15–20 minutes</strong>. Subsequent use on the same computer requires no setup at all.</p>
+  </div>
+
+  <h2>Step 1 — Install Node.js</h2>
+  <p>Node.js is a piece of background software that Claude Code requires to run. You won't interact with it directly — it just needs to be present on your computer.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Go to nodejs.org</strong>
+        <p>In your browser, visit <strong>nodejs.org</strong> and click the large green button labelled "LTS" (Long Term Support). This downloads the installer.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Run the installer</strong>
+        <p>Open the downloaded file and click through the installation steps. Accept all defaults. No customisation needed.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Verify it worked</strong>
+        <p>Open your Terminal (Mac) or Command Prompt (Windows) and type the following, then press Enter:</p>
+        <div class="cmd">node --version</div>
+        <p>You should see a version number like <code>v22.x.x</code>. That means it worked.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Step 2 — Install Claude Code</h2>
+  <p>Claude Code is the AI interface. It runs in your Terminal or Command Prompt — a plain text window where you type instructions. There is no app to open separately.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Open your Terminal or Command Prompt</strong>
+        <p><strong>Mac:</strong> Press Command + Space, type "Terminal", press Enter.<br>
+        <strong>Windows:</strong> Press the Windows key, type "Command Prompt", press Enter.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Type the install command</strong>
+        <p>Copy and paste the following exactly as written, then press Enter:</p>
+        <div class="cmd">npm install -g @anthropic-ai/claude-code</div>
+        <p>Wait for it to finish. You will see text scrolling — this is normal. It takes about 1–2 minutes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Verify it worked</strong>
+        <p>Type the following and press Enter:</p>
+        <div class="cmd">claude --version</div>
+        <p>You should see a version number. If you do, Claude Code is installed.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Step 3 — Get your Anthropic API Key</h2>
+  <p>An API key is a private password that lets Claude Code access the AI. Each team member needs their own.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Go to console.anthropic.com</strong>
+        <p>Create an account or log in if you already have one.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Create an API key</strong>
+        <p>Navigate to <strong>API Keys</strong> in the left sidebar. Click <strong>"Create Key"</strong>. Give it a name (e.g. "UV Workflow"). Copy the key — it starts with <code>sk-ant-</code>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Add billing</strong>
+        <p>Go to <strong>Billing</strong> and add a payment method. A typical sourcing run costs less than $0.50. Due diligence runs cost $0.50–$2.00.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Connect the key to Claude Code</strong>
+        <p>In your Terminal, type:</p>
+        <div class="cmd">claude <span class="comment"># This launches Claude Code for the first time</span></div>
+        <p>It will ask for your API key. Paste it and press Enter. You only do this once per computer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">Keep your API key private</div>
+    <p>Treat your API key like a password. Do not share it, post it in emails or documents, or store it in shared folders. Each team member should have their own key.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 4 — GETTING THE PROJECT FOLDER
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 3</div>
+  <h1 class="section-title">Setting up the project folder</h1>
+  <p class="lead">The UV workflow lives in a folder that contains the AI's instructions, rules, and output history. You need to copy this folder onto your computer before running anything.</p>
+
+  <h2>Option A — Download from GitHub (recommended)</h2>
+  <p>If the folder has been shared as a GitHub repository, this is the simplest method. GitHub is a platform for sharing project folders.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Install Git (if you don't have it)</strong>
+        <p>Go to <strong>git-scm.com</strong> and download the installer for your operating system. Accept all defaults during installation.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Clone the repository</strong>
+        <p>In your Terminal, navigate to where you want the folder. For example, your Desktop:</p>
+        <div class="cmd">cd Desktop<br>git clone [paste the GitHub link here]</div>
+        <p>This copies the entire project folder — including all rules, prompts, and past outputs — to your computer.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Enter the folder</strong>
+        <div class="cmd">cd claude_code <span class="comment"># or whatever the folder is named</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Option B — Copy the folder directly</h2>
+  <p>If someone has shared the folder via USB, Dropbox, Google Drive, or another method, simply copy it to your computer. Make sure you keep the entire folder intact — the AI's behaviour depends on the structure inside.</p>
+
+  <div class="callout">
+    <div class="callout-label">What's inside the folder</div>
+    <p>Do not delete or rename any files inside the project folder. Here is what each item does:</p>
+    <table style="margin-top:12px;">
+      <thead><tr><th>File / Folder</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td>The AI's core role and workflow selection rules — loaded automatically every session</td></tr>
+        <tr><td><code>prompts.md</code></td><td>Detailed execution instructions for both workflows</td></tr>
+        <tr><td><code>docs/agents.md</code></td><td>Full technical specification of every AI agent in both workflows</td></tr>
+        <tr><td><code>outputs/</code></td><td>All sourcing and due diligence results — JSON files saved from every run</td></tr>
+        <tr><td><code>outputs/session_log.md</code></td><td>Human-readable log of every run, decision, and system improvement</td></tr>
+        <tr><td><code>.claude/settings.local.json</code></td><td>Configuration — defines which websites the AI is permitted to access</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Launching the workflow</h2>
+  <p>Every session follows the same pattern: open Terminal, navigate to the folder, start Claude Code.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Open Terminal</strong>
+        <p>Mac: Command + Space → type "Terminal" → Enter<br>Windows: Windows key → type "Command Prompt" → Enter</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Navigate to the project folder</strong>
+        <div class="cmd">cd Desktop/claude_code <span class="comment"># adjust path to where you saved it</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Start Claude Code</strong>
+        <div class="cmd">claude</div>
+        <p>You will see a prompt appear. The AI is now active and has loaded all UV workflow rules automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout dark">
+    <div class="callout-label">Important</div>
+    <p>You must always launch Claude Code from <strong>inside the project folder</strong>. This is what loads the UV rules. If you launch it from a different folder, it will behave as a generic AI assistant, not as a UV VC Associate.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 5 — SOURCING WORKFLOW
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 4</div>
+  <h1 class="section-title">Running a Sourcing workflow</h1>
+  <p class="lead">The Sourcing workflow finds new startups and evaluates whether they are worth entering the UV pipeline. It runs 6 AI agents in sequence and delivers 2 vetted candidates per run.</p>
+
+  <h2>How to trigger it</h2>
+  <p>Once Claude Code is running, simply type a message containing one of these phrases:</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">"find startups"</div>
+      <p>The AI recognises this phrase and automatically launches the Sourcing workflow.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">"search"</div>
+      <p>Any message containing "search" will also trigger the Sourcing workflow.</p>
+    </div>
+  </div>
+
+  <h3>Example prompts you can type</h3>
+  <div class="cmd">find startups in climate tech in the Nordics</div>
+  <div class="cmd">search for impact-driven B2B SaaS founders in the UK</div>
+  <div class="cmd">find startups in financial inclusion — diverse founders only</div>
+  <div class="cmd">run sourcing for healthcare access startups in Sweden or Denmark</div>
+
+  <div class="callout">
+    <div class="callout-label">You can be specific or general</div>
+    <p>If you specify a sector or geography, the AI will focus there first. If you are vague, it applies UV's default criteria. Either way, all hard kill rules are always enforced.</p>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>What the AI does next (automatically)</h2>
+  <p>After you type your message, the AI runs 6 agents in order. You will see the output appear progressively. This takes approximately 3–8 minutes per run.</p>
+
+  <div class="workflow-row">
+    <div class="wf-node"><span class="wf-num">01</span><span class="wf-label">Scouter</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">02</span><span class="wf-label">Source Checker</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">03</span><span class="wf-label">Signal Extractor</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node kill"><span class="wf-num">04</span><span class="wf-label">Kill Agent</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">05</span><span class="wf-label">Thesis Fit</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">06</span><span class="wf-label">Decision</span></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Agent</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Scouter</strong></td>
+        <td>Searches the web for matching startups. Max 3 queries per company. Must find at least one funding signal and one structural source (website/LinkedIn).</td>
+      </tr>
+      <tr>
+        <td><strong>Source Checker</strong></td>
+        <td>Verifies every factual claim. If a claim cannot be verified, it is marked "unknown" — not assumed true.</td>
+      </tr>
+      <tr>
+        <td><strong>Signal Extractor</strong></td>
+        <td>Identifies the startup's unfair advantage (founder edge, technical breakthrough, distribution access, or real traction). Rejects narrative-only companies.</td>
+      </tr>
+      <tr>
+        <td><strong>Kill Agent</strong></td>
+        <td>Applies all hard kill rules. If any condition is triggered, the startup is eliminated immediately and replaced with a new search. This agent's decision cannot be overridden.</td>
+      </tr>
+      <tr>
+        <td><strong>Thesis Fit</strong></td>
+        <td>Scores alignment with UV's specific mandate: diverse founder, geography, stage, B2B impact-primary.</td>
+      </tr>
+      <tr>
+        <td><strong>Decision</strong></td>
+        <td>Outputs one of three verdicts: <span class="badge green">Advance</span> — strong signals, proceed to DD. <span class="badge orange">Track</span> — interesting but not ready. <span class="badge red">Pass</span> — weak or killed.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider"/>
+
+  <h2>Saving the output</h2>
+  <p>Ask the AI to save results before ending the session:</p>
+  <div class="cmd">save this sourcing run as outputs/sourcing_run_11.json</div>
+  <p>This stores the full structured output in the <code>outputs/</code> folder for future reference and due diligence runs.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 6 — DUE DILIGENCE WORKFLOW
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 5</div>
+  <h1 class="section-title">Running a Due Diligence workflow</h1>
+  <p class="lead">The Due Diligence workflow takes a specific startup and runs it through 8 analytical agents, ending in a binary invest/pass decision. It uses only the information you provide — it does not search the web.</p>
+
+  <h2>How to trigger it</h2>
+  <p>Type a message containing one of these phrases:</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">"analyze"</div>
+      <p>Triggers the Due Diligence workflow.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">"evaluate" or "due diligence"</div>
+      <p>Either phrase launches the full DD process.</p>
+    </div>
+  </div>
+
+  <h3>What information to provide</h3>
+  <p>Give the AI as much detail as you have. The more specific you are, the better the analysis. Minimum required:</p>
+
+  <div class="callout">
+    <div class="callout-label">Example DD prompt</div>
+    <p>
+      <em>Analyze this startup:<br><br>
+      Name: Cogs AI<br>
+      Description: AI mental health support for neurodivergent people (ADHD, autism). NHS contract renewed. 15,000 patients. 30% improvement in outcomes at 2 weeks. 4x usage vs NHS baseline.<br>
+      Stage: Pre-seed<br>
+      Location: London, UK<br>
+      Founders: Zareen Ali (CEO, autistic, Harvard MSc Educational Neuroscience, ex-medical tech PM). Felix de Grey (Co-founder).<br>
+      Total raised: £650K (Bethnal Green Ventures, Innovate UK)<br>
+      Market: NHS mental health backlog 1.8M. ADHD diagnosis wait 3–5 years. 1 in 7 people neurodivergent.<br>
+      Traction: NHS contract renewed post-impact evaluation. 15,000+ patients. No disclosed ARR.</em>
+    </p>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>What the AI does next (automatically)</h2>
+  <p>8 agents run in strict order. The process takes approximately 5–12 minutes depending on the complexity of information provided.</p>
+
+  <div class="workflow-row">
+    <div class="wf-node"><span class="wf-num">01</span><span class="wf-label">Founder</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">02</span><span class="wf-label">Product</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">03</span><span class="wf-label">Traction</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">04</span><span class="wf-label">Market</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node kill"><span class="wf-num">05</span><span class="wf-label">Risk</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node kill"><span class="wf-num">06</span><span class="wf-label">Falsification</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">07</span><span class="wf-label">Thesis Fit</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-node"><span class="wf-num">08</span><span class="wf-label">Decision</span></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Agent</th><th>What it evaluates</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Founder Agent</strong></td><td>Founder-market fit, execution history, credibility signals, team gaps</td></tr>
+      <tr><td><strong>Product Agent</strong></td><td>Is it a real product or a concept? What is the differentiation? Is it defensible?</td></tr>
+      <tr><td><strong>Traction Agent</strong></td><td>Only counts: verified revenue or signed contracts. LOIs count as weak. Pilots, press, and awards count as nothing.</td></tr>
+      <tr><td><strong>Market Agent</strong></td><td>Avoids generic stats. Must answer: why does THIS startup win THIS market NOW?</td></tr>
+      <tr><td><strong>Risk Agent</strong></td><td>Identifies deal-breaker risks. Also asks: why does this opportunity exist NOW (regulatory shift, cost change, tech breakthrough)?</td></tr>
+      <tr><td><strong>Falsification Agent</strong></td><td>Assumes the startup fails. Identifies what breaks first and what invalidates the investment thesis. This is mandatory — not optional.</td></tr>
+      <tr><td><strong>Thesis Fit Agent</strong></td><td>Scores alignment with UV's specific mandate</td></tr>
+      <tr><td><strong>Investment Decision</strong></td><td>Binary: <strong>invest</strong> or <strong>pass</strong>. No "needs more info". If uncertain → pass.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout dark">
+    <div class="callout-label">On missing information</div>
+    <p>If you don't have certain data (e.g. ARR is undisclosed), include that in your prompt. The AI marks gaps as "unknown" and treats missing information as a <strong>negative signal</strong>, not neutral. This is intentional — it prevents false confidence from incomplete data.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 7 — READING THE OUTPUTS
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 6</div>
+  <h1 class="section-title">Reading the outputs</h1>
+  <p class="lead">The AI outputs results in JSON format — a structured data format that looks technical but follows a simple logic. Here is how to read it without any coding knowledge.</p>
+
+  <div class="callout">
+    <div class="callout-label">What is JSON?</div>
+    <p>JSON is like a structured form. Every piece of information has a label (called a "key") and a value. For example: <code>"decision": "pass"</code> means the "decision" field contains the value "pass". You read left-to-right: label, then result.</p>
+  </div>
+
+  <h2>Sourcing output — key fields to read</h2>
+
+  <table>
+    <thead><tr><th>Field</th><th>What it means</th><th>Values</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>kill_decision</code></td>
+        <td>Did the startup pass the hard kill rules?</td>
+        <td><span class="badge green">proceed</span> or <span class="badge red">kill</span></td>
+      </tr>
+      <tr>
+        <td><code>traction_signal</code></td>
+        <td>Quality of real commercial evidence found</td>
+        <td><span class="badge green">strong</span> / <span class="badge orange">weak</span> / <span class="badge grey">none</span></td>
+      </tr>
+      <tr>
+        <td><code>unfair_advantage</code></td>
+        <td>The specific edge identified (or "none")</td>
+        <td>Text description</td>
+      </tr>
+      <tr>
+        <td><code>uv_fit</code></td>
+        <td>How well the startup aligns with UV's mandate</td>
+        <td><span class="badge green">high</span> / <span class="badge orange">medium</span> / <span class="badge red">low</span></td>
+      </tr>
+      <tr>
+        <td><code>decision</code></td>
+        <td>The final sourcing recommendation</td>
+        <td><span class="badge green">advance</span> / <span class="badge orange">track</span> / <span class="badge red">pass</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Due Diligence output — key fields to read</h2>
+
+  <table>
+    <thead><tr><th>Field</th><th>What it means</th><th>Values</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>decision</code></td>
+        <td>The investment recommendation</td>
+        <td><span class="badge green">invest</span> or <span class="badge red">pass</span></td>
+      </tr>
+      <tr>
+        <td><code>conviction</code></td>
+        <td>How strongly the AI holds the decision</td>
+        <td><span class="badge green">high</span> / <span class="badge orange">medium</span> / <span class="badge red">low</span></td>
+      </tr>
+      <tr>
+        <td><code>one_line_verdict</code></td>
+        <td>The single most important reason for the decision — always read this first</td>
+        <td>Plain English sentence</td>
+      </tr>
+      <tr>
+        <td><code>must_answer_questions</code></td>
+        <td>The specific questions you need answers to before reconsidering</td>
+        <td>List of questions</td>
+      </tr>
+      <tr>
+        <td><code>most_likely_failure</code></td>
+        <td>If this startup fails, what breaks first?</td>
+        <td>Plain English sentence</td>
+      </tr>
+      <tr>
+        <td><code>why_this_fails</code></td>
+        <td>A list of plausible failure scenarios</td>
+        <td>List of reasons</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider"/>
+
+  <h2>Understanding a PASS decision</h2>
+  <p>A PASS does not always mean "bad company". It can mean:</p>
+
+  <div class="two-col">
+    <div>
+      <ul class="checklist">
+        <li><strong>Revenue opacity:</strong> The company may be doing well, but ARR is undisclosed. The AI cannot confirm commercial viability without numbers.</li>
+        <li><strong>Stage mismatch:</strong> Too advanced or too early for UV's check size.</li>
+        <li><strong>Fund mandate mismatch:</strong> Great company, wrong fund (e.g. clinical-stage medtech requiring €10M+).</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="checklist">
+        <li><strong>Re-engage trigger:</strong> Most PASS decisions include a specific condition under which to revisit (e.g. "Re-engage when ARR ≥ £150K disclosed").</li>
+        <li><strong>Impact gap:</strong> Strong founders but no genuine systemic impact thesis — generic B2B tool.</li>
+        <li><strong>Traction too weak:</strong> Pilots, press, and partnerships do not qualify as traction.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 8 — PIPELINE RULES
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 7</div>
+  <h1 class="section-title">The pipeline rules</h1>
+  <p class="lead">The AI enforces a set of hard rules on every run. Understanding these helps you craft better prompts and interpret why a company was killed. These rules evolved through 10 real sourcing runs.</p>
+
+  <h2>Hard kill rules — any one triggers an automatic KILL</h2>
+  <ul class="kill-list">
+    <li>Total funding raised exceeds €5M</li>
+    <li>Already backed by a tier-1 VC (Sequoia, Index, Balderton, Planet A, byFounders, CDP, TDK Ventures, Atomico, EQT Ventures)</li>
+    <li>Round is oversubscribed with corporate strategic investors</li>
+    <li>Outside target geographies (Nordics: SE, DK, NO, FI — plus UK, Germany, Spain)</li>
+    <li>Founding team shows no underrepresented background (all-male, all-white) — unless an extraordinary exception is clearly documented</li>
+    <li>No clear unfair advantage identifiable</li>
+    <li>Traction signal is completely absent</li>
+    <li>Problem is not urgent</li>
+    <li>Product is indistinguishable from alternatives</li>
+    <li>Company is purely narrative-driven with no data</li>
+  </ul>
+
+  <h2>Excluded sectors (do not source these)</h2>
+  <p>These sectors have been permanently excluded from UV's pipeline following due diligence learnings across 10 runs:</p>
+
+  <table>
+    <thead><tr><th>Excluded Sector</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Clinical-stage medtech / EU MDR devices</td><td>Capital requirement (€10M+) exceeds seed fund mandate</td></tr>
+      <tr><td>Menopause / women's health digital health (DiGA)</td><td>Regulatory certification cost structure incompatible with seed stage</td></tr>
+      <tr><td>Consumer CPG / B2C sustainability brands</td><td>Different unit economics and distribution to UV's B2B mandate</td></tr>
+      <tr><td>Social AI / HCI infrastructure layers</td><td>Impact measurement and B2B revenue model unclear</td></tr>
+      <tr><td>AI conveyancing / proptech legal automation</td><td>Regulatory liability risk + capacity ceiling identified in DD</td></tr>
+      <tr><td>Fashion fit technology</td><td>B2C-adjacent; revenue opacity pattern; no differentiation vs. incumbents</td></tr>
+      <tr><td>FP&A / financial planning SaaS</td><td>Generic B2B tool; no impact thesis; severe competitive density</td></tr>
+      <tr><td>AI sales automation</td><td>Generic B2B tool; no systemic impact; crowded market</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider"/>
+
+  <h2>What "traction" actually means</h2>
+  <p>This is the most commonly misunderstood rule. The system classifies traction strictly:</p>
+
+  <div class="cards">
+    <div class="card accent">
+      <div class="card-title">Strong traction</div>
+      <p>Verified revenue or signed commercial contracts only. Nothing else qualifies.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Weak traction</div>
+      <p>Letters of Intent (LOIs) or pilots with defined commercial intent and a timeline to convert.</p>
+    </div>
+  </div>
+
+  <ul class="kill-list" style="margin-top:16px;">
+    <li>Press coverage — does not count</li>
+    <li>Awards or rankings — does not count</li>
+    <li>Investor announcements — does not count</li>
+    <li>Partnership announcements without contract terms — does not count</li>
+    <li>Unnamed enterprise customers — does not count</li>
+    <li>Pilot programmes without commercial commitment — does not count</li>
+  </ul>
+
+  <div class="callout">
+    <div class="callout-label">Why this matters</div>
+    <p>Revenue opacity — where a company has paying customers but does not disclose ARR — is the number one reason due diligence ends in PASS. Across 10 runs, every PASS decision at DD stage was driven at least partly by undisclosed revenue figures. <strong>The single most important question to answer before a DD run is: what is the company's ARR?</strong></p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 9 — PIPELINE HISTORY
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 7 continued</div>
+  <h1 class="section-title">What the pipeline has found so far</h1>
+  <p class="lead">The system has completed 10 sourcing runs and 7 due diligence analyses. Here is the full picture of every startup evaluated, their status, and the re-engagement conditions.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Startup</th>
+        <th>Country</th>
+        <th>Sourcing</th>
+        <th>DD Decision</th>
+        <th>Re-engage when</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>UVISA Health</strong></td>
+        <td>Denmark</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>Not recommended — fund mandate mismatch (clinical device)</td>
+      </tr>
+      <tr>
+        <td><strong>Evela Health</strong></td>
+        <td>Germany</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Hard Pass</span></td>
+        <td>Sector permanently excluded</td>
+      </tr>
+      <tr>
+        <td><strong>SUMM Ingredients</strong></td>
+        <td>Denmark</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>Q2 2026: 2+ contracted CPG customers with disclosed volume</td>
+      </tr>
+      <tr>
+        <td><strong>SAGES</strong></td>
+        <td>UK</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>Signed paid contract + independent colorfastness data</td>
+      </tr>
+      <tr>
+        <td><strong>Interhuman AI</strong></td>
+        <td>Denmark</td>
+        <td><span class="badge orange">Track</span></td>
+        <td>—</td>
+        <td>Sector excluded; monitor for pivot</td>
+      </tr>
+      <tr>
+        <td><strong>Fit Collective</strong></td>
+        <td>UK</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>ARR ≥ £300K + 3 paid contracts + CTO confirmed</td>
+      </tr>
+      <tr>
+        <td><strong>Conveyd</strong></td>
+        <td>UK</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>Disclosed ARR + signed B2B volume distribution agreement. Sector now excluded.</td>
+      </tr>
+      <tr>
+        <td><strong>Fintower</strong></td>
+        <td>Sweden</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass</span></td>
+        <td>ARR >€500K + specific moat vs Pigment/Mosaic + impact roadmap</td>
+      </tr>
+      <tr>
+        <td><strong>Spiich Labs</strong></td>
+        <td>Sweden</td>
+        <td><span class="badge orange">Track</span></td>
+        <td>—</td>
+        <td>Impact thesis needs strengthening; monitor traction development</td>
+      </tr>
+      <tr>
+        <td><strong>Cogs AI</strong></td>
+        <td>UK</td>
+        <td><span class="badge green">Advanced</span></td>
+        <td><span class="badge red">Pass*</span></td>
+        <td>NHS ARR ≥ £150K disclosed + 1 private sector contract signed</td>
+      </tr>
+      <tr>
+        <td><strong>Bloom Money</strong></td>
+        <td>UK</td>
+        <td><span class="badge orange">Track</span></td>
+        <td>—</td>
+        <td>Re-engage at £300K ARR</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-label">* Highest conviction pass to date</div>
+    <p>Cogs AI is the strongest match to UV's mandate across all 10 runs. Exceptional founder-market fit (Harvard neuroscience, autistic founder), NHS contract renewed with clinical outcome data, and maximum diversity signal. The pass is driven <strong>entirely</strong> by one unknown: the NHS contract ARR is undisclosed. A single founder call could resolve this.</p>
+  </div>
+
+  <h2>Key patterns learned across 10 runs</h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>Run 4: Stage and portfolio fit constraints added</strong>
+        <p>Initial runs found companies with €10M–€27M raised and tier-1 VC backing. Hard kill rules were added: €5M cap, no tier-1 VCs, geography list, diverse founder requirement.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>Run 6: Sector exclusions begin</strong>
+        <p>Clinical medtech and menopause digital health added to excluded sectors after DD revealed capital requirements incompatible with UV's mandate.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>Run 8: Revenue opacity identified as primary DD failure mode</strong>
+        <p>Companies with credible founders, named clients, and right stage were consistently PASSed because ARR was undisclosed. This is a data access problem, not a business quality problem.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>Run 10: Impact filter moved upstream to sourcing</strong>
+        <p>Most important system change. Previously, impact screening only happened at DD — causing wasted cycles on strong founders building generic B2B tools. Now impact verticals are targeted from the first sourcing query. Both Run 10 companies had genuine primary impact theses.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 10 — SHARING WITH TEAMMATES
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 8</div>
+  <h1 class="section-title">Sharing with teammates</h1>
+  <p class="lead">Anyone on the team can run this workflow on their own computer. All they need is the project folder, a Claude Code installation, and their own API key.</p>
+
+  <h2>Checklist for a new team member</h2>
+  <ul class="checklist">
+    <li>Install Node.js from nodejs.org (accept all defaults)</li>
+    <li>Install Claude Code: <code>npm install -g @anthropic-ai/claude-code</code></li>
+    <li>Create a personal Anthropic API key at console.anthropic.com</li>
+    <li>Add billing to the Anthropic account (pay-per-use, very low cost)</li>
+    <li>Run <code>claude</code> once to connect the API key</li>
+    <li>Clone or copy the project folder onto their computer</li>
+    <li>Navigate to the project folder in Terminal and run <code>claude</code></li>
+  </ul>
+
+  <hr class="divider"/>
+
+  <h2>Keeping outputs in sync</h2>
+  <p>If multiple team members are running the workflow, they should regularly sync their <code>outputs/</code> folder so everyone has the same pipeline history.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">↕</div>
+      <div class="card-title">Via GitHub (recommended)</div>
+      <p>If the project is on GitHub, team members run <code>git pull</code> to get the latest outputs and <code>git push</code> after saving new runs.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">☁</div>
+      <div class="card-title">Via shared cloud folder</div>
+      <p>Store the project folder in a shared Google Drive or Dropbox. Each team member works from the same folder. Avoid running simultaneous sessions on the same files.</p>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Extending the system</h2>
+  <p>The workflow can be connected to additional tools as the team's needs grow. These require a developer to configure but are straightforward integrations:</p>
+
+  <table>
+    <thead><tr><th>Extension</th><th>What it enables</th><th>Complexity</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Local folder access</strong></td>
+        <td>Claude reads pitch decks, financials, or deal memos stored on your computer</td>
+        <td>Low — MCP filesystem server</td>
+      </tr>
+      <tr>
+        <td><strong>Email integration</strong></td>
+        <td>Claude scans inbound deal flow emails and auto-runs sourcing on submitted startups</td>
+        <td>Medium — Gmail MCP server</td>
+      </tr>
+      <tr>
+        <td><strong>Notion or Airtable sync</strong></td>
+        <td>Pipeline decisions automatically populate a deal tracking database</td>
+        <td>Medium — MCP database connector</td>
+      </tr>
+      <tr>
+        <td><strong>Custom web interface</strong></td>
+        <td>A simple form where founders submit details and trigger a DD automatically</td>
+        <td>High — requires custom development</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PAGE 11 — FAQs
+══════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-eyebrow">Section 9</div>
+  <h1 class="section-title">Frequently asked questions</h1>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I need to know how to code to use this?</div>
+    <div class="faq-a">No. If you can open a Terminal window and type a sentence, you can run the workflow. The most technical step is typing <code>npm install -g @anthropic-ai/claude-code</code> once during setup.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How much does it cost to run?</div>
+    <div class="faq-a">A typical sourcing run costs under $0.50. A full due diligence run costs $0.50–$2.00. Costs are charged per-use directly to your Anthropic account — there is no monthly subscription for the workflow itself.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Why does the AI kill most startups it finds?</div>
+    <div class="faq-a">This is by design. The system is calibrated to eliminate 70–80% of companies. UV's fund mandate is highly specific: pre-seed, €5M cap, diverse founders, impact-primary B2B, Nordics and select European geographies. Most startups found in a broad search will fail one or more of these criteria. Strict elimination means only genuinely aligned deals reach you.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Can I add new sectors to exclude?</div>
+    <div class="faq-a">Yes. Open the <code>prompts.md</code> file and add the sector to the "EXCLUDED SECTORS" list. Also add it to <code>docs/agents.md</code> in the Kill Agent section. The AI will apply it in all future runs.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What if the AI finds a startup that doesn't exist?</div>
+    <div class="faq-a">The system requires the AI to verify every claim from real web sources. If it cannot find at least one funding/investor signal and one structural source (website or LinkedIn), the startup is marked as unverified and killed. Fabricated companies should not pass the Source Checker. If you suspect a result is invented, ask the AI to show its sources.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Can I run DD on a startup that wasn't found through sourcing?</div>
+    <div class="faq-a">Yes. The sourcing and due diligence workflows are independent. You can run DD on any startup by providing its details directly. This is useful for inbound deal flow or warm introductions.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">The output is JSON and I find it hard to read. What do I do?</div>
+    <div class="faq-a">After the JSON output appears, simply ask: "summarise this in plain English". The AI will provide a human-readable version. Alternatively, focus on the <code>one_line_verdict</code> field in DD outputs and the <code>decision</code> field in sourcing outputs — these give you the key result immediately.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Can I change the fund geography or stage criteria?</div>
+    <div class="faq-a">Yes, but do so carefully. Open <code>CLAUDE.md</code> and <code>docs/agents.md</code> and update the relevant sections. Changing geography or stage criteria affects the Kill Agent and will change which companies survive sourcing runs. Ensure any changes are agreed by the fund before editing.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How do I know the AI isn't just making up its analysis?</div>
+    <div class="faq-a">The system has explicit anti-hallucination rules: every claim must come from a verified source, unknown information must be labelled "unknown" rather than assumed, and the AI is forbidden from softening judgements based on incomplete data. You can always ask "what are your sources for this?" to see the evidence behind any claim.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What happens to the outputs after a session ends?</div>
+    <div class="faq-a">Nothing is saved automatically. You must explicitly ask the AI to save results: "save this as outputs/sourcing_run_12.json". If you close the Terminal without saving, the session output is lost. Make saving the last step of every session.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Can I share the API key with a colleague?</div>
+    <div class="faq-a">Technically possible but not recommended. Sharing API keys makes it hard to track usage and control costs. Each team member should create their own free API key at console.anthropic.com. It takes 2 minutes.</div>
+  </div>
+
+  <hr class="divider"/>
+
+  <div class="callout dark">
+    <div class="callout-label">Questions not covered here?</div>
+    <p>If you encounter an issue not covered in this guide, ask the AI directly inside the session. Type your question and it will help you troubleshoot. Claude Code also has built-in help accessible by typing <code>/help</code>.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     BACK COVER
+══════════════════════════════════════════ -->
+<div class="cover" style="page-break-before: always;">
+  <div class="cover-top">
+    <div class="logo-area">
+      <div class="fund-name">INTRODUCTION | Unconventional Ventures x Luca</div>
+    </div>
+    <div class="cover-badge">AI Workflow System v1.0</div>
+  </div>
+
+  <div class="cover-center" style="padding: 60px 0 20px;">
+    <div class="cover-title" style="font-size:40px; max-width: 600px;">Quick reference</div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px;">
+      <div style="background:#1a1a1a; border-radius:12px; padding:24px;">
+        <div style="color: var(--accent); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;">Sourcing — trigger phrases</div>
+        <div style="font-family: monospace; font-size:13px; color:#ccc; line-height:2;">
+          "find startups in [sector]"<br>
+          "search for [criteria]"<br>
+          "run sourcing on [topic]"
+        </div>
+      </div>
+      <div style="background:#1a1a1a; border-radius:12px; padding:24px;">
+        <div style="color: var(--accent); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;">Due Diligence — trigger phrases</div>
+        <div style="font-family: monospace; font-size:13px; color:#ccc; line-height:2;">
+          "analyze [startup name]"<br>
+          "evaluate [startup]"<br>
+          "due diligence on [startup]"
+        </div>
+      </div>
+      <div style="background:#1a1a1a; border-radius:12px; padding:24px;">
+        <div style="color: var(--accent); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;">Launch command</div>
+        <div style="font-family: monospace; font-size:13px; color:#ccc; line-height:2;">
+          cd [project folder path]<br>
+          claude
+        </div>
+      </div>
+      <div style="background:#1a1a1a; border-radius:12px; padding:24px;">
+        <div style="color: var(--accent); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;">Save results</div>
+        <div style="font-family: monospace; font-size:13px; color:#ccc; line-height:2;">
+          "save as outputs/sourcing_run_11.json"<br>
+          "save as outputs/dd_[name].json"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid #2a2a2a; padding-top: 32px;">
+    <div style="color: #555; font-size: 12px;">INTRODUCTION | Unconventional Ventures x Luca · AI Workflow Implementation Guide · 2026 · Internal Use</div>
+  </div>
+</div>
+
+</body>
+</html>
