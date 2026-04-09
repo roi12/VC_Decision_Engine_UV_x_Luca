@@ -131,19 +131,36 @@ async function* streamAgentEvents(input, apiKey = null) {
   const promptsMd = fs.readFileSync(path.join(ROOT, 'prompts.md'),     'utf8');
   const systemContext = [claudeMd, agentsMd, promptsMd].join('\n\n---\n\n');
 
+  const DD_JSON_SCHEMA = `{
+  "signals": {
+    "thesis_fit":           { "value": "", "confidence": 0.0, "source": "" },
+    "origin_signal":        { "value": "", "confidence": 0.0, "source": "" },
+    "technical_depth":      { "value": "", "confidence": 0.0, "source": "" },
+    "institutional_signal": { "value": "", "confidence": 0.0, "source": "" },
+    "market_signal":        { "value": "", "confidence": 0.0, "source": "" },
+    "timing_signal":        { "value": "", "confidence": 0.0, "source": "" }
+  },
+  "decision": "invest or pass",
+  "reasoning": ["key reason 1", "key reason 2", "key reason 3"]
+}`;
+
   const messages = [{
     role: 'user',
     content:
 `Run DUE DILIGENCE for: ${input}
 
-Use web_search to gather real data before evaluating. Search for:
+Use web_search to gather real data. Search for:
 1. Company overview and product
 2. Founder background and team
 3. Funding history and investors
 4. Evidence of traction (revenue, customers, contracts)
 5. Recent news (2024–2025)
 
-Then run all 8 DD agents grounded in the data you found. No prior knowledge.`,
+Then internally run all 8 DD agents (Founder, Product, Traction, Market, Risk, Falsification, Thesis Fit, Investment Decision) grounded in the search data.
+
+YOUR ENTIRE RESPONSE MUST BE ONLY THE FOLLOWING JSON OBJECT — no prose, no markdown fences, no agent output blocks, nothing else:
+
+${DD_JSON_SCHEMA}`,
   }];
 
   let fullText = '';
@@ -154,7 +171,7 @@ Then run all 8 DD agents grounded in the data you found. No prior knowledge.`,
   while (true) {
     const stream = client.messages.stream({
       model: 'claude-opus-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemContext,
       ...(searchesUsed < MAX_SEARCHES && { tools: [WEB_SEARCH_TOOL] }),
       messages,
@@ -211,7 +228,29 @@ Then run all 8 DD agents grounded in the data you found. No prior knowledge.`,
   const raw = fullText.trim()
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
-  yield { type: 'done', result: extractLastJson(raw) };
+  let finalResult;
+  try {
+    finalResult = extractLastJson(raw);
+  } catch {
+    // Fallback: Claude output prose instead of JSON — ask it to reformat
+    const fallback = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 1024,
+      messages: [{
+        role: 'user',
+        content:
+`The following is a due diligence analysis. Extract the key conclusions and return ONLY this JSON object (no other text):
+
+${DD_JSON_SCHEMA}
+
+Analysis:
+${raw || '(no analysis output — return all confidence values as 0.3 and decision as "pass")'}`,
+      }],
+    });
+    finalResult = extractLastJson(fallback.content[0].text);
+  }
+
+  yield { type: 'done', result: finalResult };
 }
 
 // ─── Intake streaming ──────────────────────────────────────────────────────
