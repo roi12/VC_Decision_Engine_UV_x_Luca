@@ -116,15 +116,6 @@ More actionable decisions
 
 ---
 
-## Tech Stack
-
-- Python
-- LLM-based agents (Claude Code)
-- SQL & data pipelines
-- Process automation tools
-
----
-
 ## Use Cases
 
 - Venture Capital firms
