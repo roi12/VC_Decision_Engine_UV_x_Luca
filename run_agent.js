@@ -253,6 +253,37 @@ ${raw || '(no analysis output — return all confidence values as 0.3 and decisi
   yield { type: 'done', result: finalResult };
 }
 
+// ─── Intake result normalizer ─────────────────────────────────────────────
+// Maps the raw multi-agent JSON { scouter, signal_extractor, thesis_fit, decision }
+// to the flat IntakeResult shape the frontend expects.
+
+function normalizeIntakeResult(raw) {
+  const scouter   = raw.scouter          || {};
+  const extractor = raw.signal_extractor || {};
+  const thesis    = raw.thesis_fit       || {};
+  const decision  = raw.decision         || {};
+
+  const tractionMap  = { strong: 0.8, medium: 0.6, weak: 0.3, none: 0.1 };
+  const fitMap       = { high: 0.8, medium: 0.5, low: 0.2 };
+  const tScore = tractionMap[(extractor.traction_signal || '').toLowerCase()] ?? 0.3;
+  const fScore = fitMap[(thesis.uv_fit || '').toLowerCase()] ?? 0.3;
+
+  return {
+    company:    scouter.startup_name || '',
+    summary:    scouter.description  || '',
+    quick_take: decision.reason      || thesis.reason || '',
+    confidence: Math.round(((tScore + fScore) / 2) * 100) / 100,
+    signals: {
+      thesis_fit:           thesis.uv_fit                || '',
+      origin_signal:        scouter.location             || '',
+      technical_depth:      extractor.advantage_type     || '',
+      institutional_signal: scouter.total_raised         || '',
+      market_signal:        extractor.traction_signal    || '',
+      timing_signal:        scouter.stage                || '',
+    },
+  };
+}
+
 // ─── Intake streaming ──────────────────────────────────────────────────────
 // Intake is grounded on pre-fetched website data — no web_search tool needed.
 
@@ -311,7 +342,7 @@ No website data was pre-fetched. Use web_search to find information about this c
   while (true) {
     const stream = client.messages.stream({
       model: 'claude-opus-4-6',
-      max_tokens: 2048,
+      max_tokens: 4096,
       system: systemContext,
       ...(searchesUsed < MAX_SEARCHES && { tools: [WEB_SEARCH_TOOL] }),
       messages,
@@ -363,7 +394,35 @@ No website data was pre-fetched. Use web_search to find information about this c
   const raw = fullText.trim()
     .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
-  yield { type: 'done', result: extractLastJson(raw) };
+  let intakeResult;
+  try {
+    intakeResult = extractLastJson(raw);
+  } catch {
+    // Fallback: Claude output prose instead of JSON — ask it to reformat
+    const fallback = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 2048,
+      messages: [{
+        role: 'user',
+        content:
+`The following is an intake analysis. Extract the key conclusions and return ONLY a valid JSON object with this structure (no other text):
+
+{
+  "scouter": { "startup_name": "", "description": "", "location": "", "stage": "", "founded": "", "total_raised": "" },
+  "source_checker": { "claims_verified": [], "unknown": [] },
+  "signal_extractor": { "unfair_advantage": "", "advantage_type": "", "traction_signal": "", "evidence": [], "diverse_founder": "" },
+  "thesis_fit": { "uv_fit": "", "reason": "" },
+  "decision": { "decision": "", "reason": "" }
+}
+
+Analysis:
+${raw || '(no analysis output — return uv_fit as "unknown" and decision as "pass")'}`,
+      }],
+    });
+    intakeResult = extractLastJson(fallback.content[0].text);
+  }
+
+  yield { type: 'done', result: normalizeIntakeResult(intakeResult) };
 }
 
 // ─── Non-streaming runAgent (CLI use) ─────────────────────────────────────
